@@ -1,0 +1,58 @@
+﻿@using BlazingPizza
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components
+
+<div class="dialog-container">
+    <div class="dialog">
+        <div class="dialog-title">
+            <h2>@(Special.Id == 0 ? "Agregar nuevo especial" : $"Editar {Special.Name}")</h2>
+        </div>
+
+        <EditForm Model="@Special" OnValidSubmit="@OnSave">
+            <DataAnnotationsValidator />
+
+            <div class="form-field">
+                <label>Nombre:</label>
+                <div>
+                    <InputText @bind-Value="Special.Name" />
+                    <ValidationMessage For="@(() => Special.Name)" />
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label>Precio Base:</label>
+                <div>
+                    <InputNumber @bind-Value="Special.BasePrice" step="0.01" />
+                    <ValidationMessage For="@(() => Special.BasePrice)" />
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label>Descripción:</label>
+                <div>
+                    <InputTextArea @bind-Value="Special.Description" />
+                    <ValidationMessage For="@(() => Special.Description)" />
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label>URL de la imagen:</label>
+                <div>
+                    <InputText @bind-Value="Special.ImageUrl" />
+                    <ValidationMessage For="@(() => Special.ImageUrl)" />
+                </div>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-secondary" @onclick="OnCancel">Cancelar</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter] public PizzaSpecial Special { get; set; } = default!;
+    [Parameter] public EventCallback OnSave { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+}

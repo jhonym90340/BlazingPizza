@@ -1,0 +1,116 @@
+﻿@page "/admin"
+@using BlazingPizza
+@using BlazingPizza.Client
+@using Microsoft.AspNetCore.Authorization
+@using BlazingPizza.Client.Extensions
+@attribute [Authorize(Roles = "Administrators")]
+
+@inject AdminClient AdminClient
+
+<div class="main">
+    <h1> Panel de Administración de Pizzas Especiales</h1>
+
+    @if (editingSpecial is not null)
+    {
+        <EditSpecialDialog Special="@editingSpecial"
+                           OnSave="@HandleSave"
+                           OnCancel="@HandleCancel" />
+    }
+
+    @if (specials == null)
+    {
+        <div class="loading">Cargando especiales...</div>
+    }
+    else
+    {
+        <div class="admin-content">
+            <p>
+                Especiales cargados (@specials.Count)
+                <button class="btn btn-success float-right" @onclick="HandleAdd">
+                    Agregar nuevo
+                </button>
+            </p>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Precio Base</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var special in specials)
+                    {
+                        <tr>
+                            <td>@special.Id</td>
+                            <td>@special.Name</td>
+                            <td>@special.GetFormattedBasePrice()</td>
+                            <td>@special.Description</td>
+                            <td>
+                                <button class="btn btn-warning" @onclick='() => HandleEdit(special)'>
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+
+@code {
+    private List<PizzaSpecial>? specials;
+    private PizzaSpecial? editingSpecial; // Variable que controla la apertura del diálogo
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSpecials();
+    }
+
+    private async Task LoadSpecials()
+    {
+        specials = await AdminClient.GetSpecialsAsync();
+    }
+
+    // --- Lógica de Manejo ---
+
+    private void HandleEdit(PizzaSpecial special)
+    {
+        // Crea una COPIA del objeto para editar sin modificar la lista original
+        editingSpecial = special.Clone(); 
+    }
+
+    private void HandleAdd()
+    {
+        // Crea un objeto vacío con Id = 0 para indicar que es nuevo
+        editingSpecial = new PizzaSpecial();
+    }
+
+    private void HandleCancel()
+    {
+        editingSpecial = null; // Cierra el diálogo
+    }
+
+    private async Task HandleSave()
+    {
+        if (editingSpecial is null) return;
+
+        // Si el ID es 0, es una nueva pizza (Create)
+        if (editingSpecial.Id == 0)
+        {
+            await AdminClient.CreateSpecial(editingSpecial);
+        }
+        else // Si el ID existe, es una actualización (Update)
+        {
+            await AdminClient.UpdateSpecial(editingSpecial);
+        }
+
+        editingSpecial = null; // Cierra el diálogo
+        await LoadSpecials(); // Recarga la lista para ver el cambio
+    }
+}
