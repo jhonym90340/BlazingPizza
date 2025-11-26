@@ -9,7 +9,7 @@ Esta versión del sistema introduce dos nuevos módulos clave:
 Propósito: Gestionar los permisos y la autenticación de los diferentes usuarios del sistema  Administrador, Cliente.
 
  Funciones principales:
-  AsignarRol(idUsuario, rol)`: Establece el nivel de acceso para un usuario.
+  AsignarRol(idUsuario, rol): Establece el nivel de acceso para un usuario.
   VerificarPermiso(idUsuario, accion): Confirma si un usuario tiene la autoridad para realizar una acción específica.
      
 
